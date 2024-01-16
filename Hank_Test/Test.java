@@ -2,7 +2,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.FileWriter;
 import java.util.Scanner;
-import java.util.Iterator;
+import java.util.Set;
 import org.json.XML;
 import org.json.JSONObject;
 import org.json.JSONPointer;
@@ -10,7 +10,7 @@ import org.json.JSONException;
 import org.json.JSONPointerException;
 public class Test{
 
-    public static JSONObject getJSONObject(String path){
+    public static JSONObject convertXML(String path){
         try{
             StringBuilder str = new StringBuilder();
             File xml = new File(path);
@@ -50,6 +50,21 @@ public class Test{
         return null;
     }   
 
+    public static JSONObject addPrefix(JSONObject json){
+        Set<String> keys = json.keySet();
+        for(String key: keys){
+            Object value = json.get(key);
+            if (value instanceof JSONObject){
+                JSONObject subObject = JSONObject.class.cast(value);
+                subObject = addPrefix(subObject);
+            }
+            json.remove(key);
+            String newKey = "swe262_" + key;
+            json.put(newKey, value);
+        }
+        return json;
+    } 
+
     public static void main(String[] args){
         // task1
         // JSONObject json = getJSONObject(args[0]);
@@ -76,10 +91,9 @@ public class Test{
         // }
         
         //task4
-        JSONObject json = getJSONObject(args[0]);
-        Iterator<String> keys = json.keys();
-        while(keys.hasNext()){
-            System.out.println(keys.next());
-        }
+        JSONObject json = convertXML(args[0]);
+        json = addPrefix(json);
+        toJSONFile(json.toString(), "./addPrefix.json");
+
     }
 }
