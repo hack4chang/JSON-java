@@ -16,3 +16,9 @@ build
 /gradlew
 /gradlew.bat
 .gitmodules
+<<<<<<< HEAD
+=======
+
+.DS_Store
+*.class
+>>>>>>> 1801011 (feat: update .git_ignore, ignore java class)
