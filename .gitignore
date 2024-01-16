@@ -18,3 +18,4 @@ build
 .gitmodules
 
 .DS_Store
+*.class
