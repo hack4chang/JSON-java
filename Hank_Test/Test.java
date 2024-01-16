@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.util.Scanner;
 import java.util.Set;
 import org.json.XML;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONPointer;
 import org.json.JSONException;
@@ -54,16 +55,26 @@ public class Test{
         Set<String> keys = json.keySet();
         for(String key: keys){
             Object value = json.get(key);
+            json.remove(key);
+            String newKey = "swe262_" + key;
             if (value instanceof JSONObject){
                 JSONObject subObject = JSONObject.class.cast(value);
                 subObject = addPrefix(subObject);
+                json.put(newKey, subObject);
+            }else if(value instanceof JSONArray){
+                JSONArray subArray = JSONArray.class.cast(value);
+                int length = subArray.length();
+                for(int i = 0; i < length; i++){
+                    JSONObject element = subArray.getJSONObject(i);
+                    addPrefix(element);
+                }
             }
-            json.remove(key);
-            String newKey = "swe262_" + key;
-            json.put(newKey, value);
+            else{
+                json.put(newKey, value);
+            }
         }
         return json;
-    } 
+    }
 
     public static void main(String[] args){
         // task1
