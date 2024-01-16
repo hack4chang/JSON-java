@@ -32,19 +32,19 @@ public class Test{
     /* this function convert xml file into json file and write the json file as
      * Output.json in same dir.
      */
-    public static void toJSONFile(String file, String path){
+    public static void writeFile(String content, String path){
         try{
             FileWriter out = new FileWriter(path);
-            out.write(file);
+            out.write(content);
             out.close();
         }catch(IOException e){
             e.printStackTrace();;
         }
     }
 
-    public static Object queryJSON(String JSONPointer, JSONObject json){
+    public static Object queryJSON(String queryPath, JSONObject json){
         try{
-            JSONPointer pointer = new JSONPointer(JSONPointer);
+            JSONPointer pointer = new JSONPointer(queryPath);
             Object result = pointer.queryFrom(json);
             return result;
         }catch(JSONPointerException e){
@@ -89,33 +89,33 @@ public class Test{
 
     public static void main(String[] args){
         // task1
-        // JSONObject json = getJSONObject(args[0]);
-        // toJSONFile(json.toString(), args[0].replace(".xml",".json"));
+        // JSONObject json = convertXML(args[0]);
+        // writeFile(json.toString(), args[0].replace(".xml",".json"));
 
         //task2
-        // String JSONPointer = "/catalog/book/3";
-        // Object result = queryJSON(JSONPointer, json);
+        // String queryPath = "/catalog/book/3";
+        // Object result = queryJSON(queryPath, json);
         // if(result == null){
         //     System.out.println("task2 failed");
         // }else{
-        //     toJSONFile(result.toString(), "./subObject.json");
+        //     writeFile(result.toString(), "./subObject.json");
         // }
 
         //task3
-        // JSONObject json = getJSONObject(args[0]);
-        // toJSONFile(json.toString(), args[0].replace(".xml",".json"));
-        // String JSONPointer = args[1];
-        // Object result = queryJSON(JSONPointer, json);
+        // JSONObject json = convertXML(args[0]);
+        // writeFile(json.toString(), args[0].replace(".xml",".json"));
+        // String queryPath = args[1];
+        // Object result = queryJSON(queryPath, json);
         // if(result == null){
         //     System.out.println("Qeury Failed, Discarded!");
         // }else{
-        //     toJSONFile(result.toString(), "./subObject.json");
+        //     writeFile(result.toString(), "./subObject.json");
         // }
         
         //task4
         JSONObject json = convertXML(args[0]);
         json = addPrefix(json);
-        toJSONFile(json.toString(), "./addPrefix.json");
+        writeFile(json.toString(), "./addPrefix.json");
 
 
     }
