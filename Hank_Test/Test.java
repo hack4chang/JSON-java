@@ -3,6 +3,8 @@ import java.io.IOException;
 import java.io.FileWriter;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 import org.json.XML;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -53,27 +55,36 @@ public class Test{
 
     public static JSONObject addPrefix(JSONObject json){
         Set<String> keys = json.keySet();
-        for(String key: keys){
-            Object value = json.get(key);
-            json.remove(key);
-            String newKey = "swe262_" + key;
+        List<String> key_arrs = new ArrayList<>(keys);
+        for(int i = 0; i < key_arrs.size(); i++){
+            Object value = json.get(key_arrs.get(i));
+            json.remove(key_arrs.get(i));
+            String newKey = "swe262_" + key_arrs.get(i);
             if (value instanceof JSONObject){
                 JSONObject subObject = JSONObject.class.cast(value);
                 subObject = addPrefix(subObject);
                 json.put(newKey, subObject);
             }else if(value instanceof JSONArray){
-                JSONArray subArray = JSONArray.class.cast(value);
-                int length = subArray.length();
-                for(int i = 0; i < length; i++){
-                    JSONObject element = subArray.getJSONObject(i);
-                    addPrefix(element);
-                }
+                JSONArray subArr = JSONArray.class.cast(value);
+                subArr = addPrefix(subArr);
+                json.put(newKey, subArr);
             }
             else{
                 json.put(newKey, value);
             }
         }
         return json;
+    }
+
+    public static JSONArray addPrefix(JSONArray arr){
+        int length = arr.length();
+        for(int i = 0; i < length; i++){
+            JSONObject element = arr.getJSONObject(0);
+            element = addPrefix(element);
+            arr.remove(0);
+            arr.put(element);
+        }
+        return arr;
     }
 
     public static void main(String[] args){
@@ -105,6 +116,7 @@ public class Test{
         JSONObject json = convertXML(args[0]);
         json = addPrefix(json);
         toJSONFile(json.toString(), "./addPrefix.json");
+
 
     }
 }
