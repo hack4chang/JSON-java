@@ -1,6 +1,5 @@
-{
-    "catalog": {
-        "book": [
+{"book":
+    [
             {
                 "author": "Gambardella, Matthew",
                 "price": 44.95,
@@ -111,4 +110,3 @@
             }
         ]
     }
-}
