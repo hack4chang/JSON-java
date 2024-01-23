@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.List;
+import java.util.Arrays;
 import java.util.ArrayList;
 import org.json.XML;
 import org.json.JSONArray;
@@ -87,12 +88,39 @@ public class Test{
         return arr;
     }
 
+    public static void replaceObj(JSONObject json, JSONObject newObj, String path){
+        JSONPointer pointer = new JSONPointer(path);
+        Object subObject = pointer.queryFrom(json);
+        if(subObject instanceof JSONObject){
+            JSONObject sub = JSONObject.class.cast(subObject);
+            Set<String> subKeySet = sub.keySet();
+            List<String> subKeyArrs = new ArrayList<>(subKeySet);
+            for(int i = 0; i < subKeyArrs.size(); i++){
+                sub.remove(subKeyArrs.get(i));
+            }
+
+            Set<String> newKeySet = newObj.keySet();
+            List<String> newKeyArrs = new ArrayList<>(newKeySet);
+            for(int i = 0; i < newKeyArrs.size(); i++){
+                String key = newKeyArrs.get(i);
+                sub.put(key, newObj.get(key));
+            }
+        }else if(subObject == null){
+            System.out.println("Object not found!");
+        }
+        else{
+            System.out.println("subObject should be JSONObject");
+        }
+    }
+
+
     public static void main(String[] args){
         // task1
         // JSONObject json = convertXML(args[0]);
         // writeFile(json.toString(), args[0].replace(".xml",".json"));
 
         //task2
+        // JSONObject json = convertXML(args[0]);
         // String queryPath = "/catalog/book/3";
         // Object result = queryJSON(queryPath, json);
         // if(result == null){
@@ -103,7 +131,6 @@ public class Test{
 
         //task3
         // JSONObject json = convertXML(args[0]);
-        // writeFile(json.toString(), args[0].replace(".xml",".json"));
         // String queryPath = args[1];
         // Object result = queryJSON(queryPath, json);
         // if(result == null){
@@ -113,10 +140,18 @@ public class Test{
         // }
         
         //task4
+        // JSONObject json = convertXML(args[0]);
+        // json = addPrefix(json);
+        // writeFile(json.toString(), "./addPrefix.json");
+            
+        //task5
         JSONObject json = convertXML(args[0]);
-        json = addPrefix(json);
-        writeFile(json.toString(), "./addPrefix.json");
-
+        String path = "/catalog";
+        JSONObject newObj = new JSONObject();
+        newObj.put("name","abcd");
+        replaceObj(json, newObj, path);
+        writeFile(json.toString(), "./repalce.json");
+        
 
     }
 }
