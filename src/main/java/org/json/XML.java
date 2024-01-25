@@ -260,19 +260,23 @@ public class XML {
         // <<
 
         token = x.nextToken();
-
+        System.out.printf("enter new parse: next token is %s\n",token.toString());
         // <!
 
         if (token == BANG) {
+            System.out.println("<=============BANG=============>");
             c = x.next();
+            System.out.printf("c now is %c, section BANG\n", c);
             if (c == '-') {
                 if (x.next() == '-') {
+                    System.out.println("Comment");
                     x.skipPast("-->");
                     return false;
                 }
                 x.back();
             } else if (c == '[') {
                 token = x.nextToken();
+                System.out.printf("c is '[' and next token is %s\n",token.toString());
                 if ("CDATA".equals(token)) {
                     if (x.next() == '[') {
                         string = x.nextCDATA();
@@ -286,6 +290,7 @@ public class XML {
             }
             i = 1;
             do {
+                System.out.println("<========Get MetaData=========>");
                 token = x.nextMeta();
                 if (token == null) {
                     throw x.syntaxError("Missing '>' after '<!'.");
@@ -297,14 +302,14 @@ public class XML {
             } while (i > 0);
             return false;
         } else if (token == QUEST) {
-
+            System.out.println("<=========Skip Question Mark ?>===========>");
             // <?
             x.skipPast("?>");
             return false;
         } else if (token == SLASH) {
 
             // Close tag </
-
+            System.out.println("<=========Close tag===========>");
             token = x.nextToken();
             if (name == null) {
                 throw x.syntaxError("Mismatched close tag " + token);
@@ -323,21 +328,29 @@ public class XML {
             // Open tag <
 
         } else {
+            System.out.println("<======== Open Tag========>");
             tagName = (String) token;
             token = null;
             jsonObject = new JSONObject();
             boolean nilAttributeFound = false;
             xmlXsiTypeConverter = null;
+            System.out.printf("tagName = %s\n",tagName);
             for (;;) {
                 if (token == null) {
                     token = x.nextToken();
+                    System.out.printf("token equals null, and next token is %s\n",token.toString());
                 }
                 // attribute = value
                 if (token instanceof String) {
+                    System.out.println("<===================attribute = value====================>");
                     string = (String) token;
+                    System.out.printf("previous token %s assign to string\n",token);
                     token = x.nextToken();
+                    System.out.printf("token now is %s\n",token);
                     if (token == EQ) {
+                        System.out.println("<=============token EQ==============>");
                         token = x.nextToken();
+                        System.out.printf("token now is %s\n",token.toString());
                         if (!(token instanceof String)) {
                             throw x.syntaxError("Missing value");
                         }
@@ -345,77 +358,106 @@ public class XML {
                         if (config.isConvertNilAttributeToNull()
                                 && NULL_ATTR.equals(string)
                                 && Boolean.parseBoolean((String) token)) {
+                            System.out.println("<===========NilAttFound==========>");
                             nilAttributeFound = true;
                         } else if(config.getXsiTypeMap() != null && !config.getXsiTypeMap().isEmpty()
                                 && TYPE_ATTR.equals(string)) {
                             xmlXsiTypeConverter = config.getXsiTypeMap().get(token);
                         } else if (!nilAttributeFound) {
+                            System.out.println("<==========NilNotFound==========>");
                             jsonObject.accumulate(string,
                                     config.isKeepStrings()
                                             ? ((String) token)
                                             : stringToValue((String) token));
+                                            System.out.printf("jsonObject now is %s\n",jsonObject.toString());
                         }
                         token = null;
                     } else {
+                        System.out.println("<==============ELSE============>");
                         jsonObject.accumulate(string, "");
                     }
 
 
                 } else if (token == SLASH) {
                     // Empty tag <.../>
+                    System.out.println("<=======================SLASH======================>");
                     if (x.nextToken() != GT) {
                         throw x.syntaxError("Misshaped tag");
                     }
                     if (config.getForceList().contains(tagName)) {
+                        System.out.printf("<-----config contains tagName %s------>\n",tagName);
                         // Force the value to be an array
                         if (nilAttributeFound) {
+                            System.out.println("nilAttributeFound, append tagName");
                             context.append(tagName, JSONObject.NULL);
+                            System.out.printf("context is now %s\n",context.toString());
                         } else if (jsonObject.length() > 0) {
+                            System.out.println("jsonObject length > 0, append tagName as key, and jsonObject as value");
                             context.append(tagName, jsonObject);
+                            System.out.printf("context is now %s\n",context.toString());
                         } else {
+                            System.out.println("put JSONArray to tagName");
                             context.put(tagName, new JSONArray());
+                            System.out.printf("context is now %s\n",context.toString());
                         }
                     } else {
+                        System.out.println("<--------config not contains tagName-------?");
                         if (nilAttributeFound) {
+                            System.out.println("nilAttributeFound, accumulate tagName");
                             context.accumulate(tagName, JSONObject.NULL);
+                            System.out.printf("context is now %s\n",context.toString());
                         } else if (jsonObject.length() > 0) {
+                            System.out.println("jsonObject length > 0, accumulate tagName as key, and jsonObject as value");
                             context.accumulate(tagName, jsonObject);
+                            System.out.printf("context is now %s\n",context.toString());
                         } else {
+                            System.out.println("else");
                             context.accumulate(tagName, "");
+                            System.out.printf("context is now %s\n",context.toString());
                         }
                     }
                     return false;
 
                 } else if (token == GT) {
                     // Content, between <...> and </...>
+                    System.out.println("<==============GT================>");
                     for (;;) {
                         token = x.nextContent();
+                        System.out.printf("next token is %s\n",token);
                         if (token == null) {
+                            System.out.println("token is Null");
                             if (tagName != null) {
+                                System.out.println("but tagName is not null");
                                 throw x.syntaxError("Unclosed tag " + tagName);
                             }
                             return false;
                         } else if (token instanceof String) {
+                            System.out.println("<-------token is a string------->");
                             string = (String) token;
                             if (string.length() > 0) {
                                 if(xmlXsiTypeConverter != null) {
+                                    System.out.println("xmlXsiTypeConverter is not null");
                                     jsonObject.accumulate(config.getcDataTagName(),
                                             stringToValue(string, xmlXsiTypeConverter));
                                 } else {
+                                    System.out.println("xmlXsiTypeConverter is null");
                                     jsonObject.accumulate(config.getcDataTagName(),
                                             config.isKeepStrings() ? string : stringToValue(string));
                                 }
                             }
 
                         } else if (token == LT) {
+                            System.out.println("<=======================LT Nested=======================>");
                             // Nested element
                             if (currentNestingDepth == config.getMaxNestingDepth()) {
                                 throw x.syntaxError("Maximum nesting depth of " + config.getMaxNestingDepth() + " reached");
                             }
-
+                            System.out.printf("Current NestingDepth = %d, call parse in parse\n", currentNestingDepth);
                             if (parse(x, jsonObject, tagName, config, currentNestingDepth + 1)) {
+                                System.out.println("<--------recursive parse return true--------->");
                                 if (config.getForceList().contains(tagName)) {
                                     // Force the value to be an array
+                                    System.out.println("getForceList contains tagName");
                                     if (jsonObject.length() == 0) {
                                         context.put(tagName, new JSONArray());
                                     } else if (jsonObject.length() == 1
@@ -424,7 +466,9 @@ public class XML {
                                     } else {
                                         context.append(tagName, jsonObject);
                                     }
+                                    System.out.printf("context now is %s\n", context.toString());
                                 } else {
+                                    System.out.println("<--------recursive parse return false--------->");
                                     if (jsonObject.length() == 0) {
                                         context.accumulate(tagName, "");
                                     } else if (jsonObject.length() == 1
@@ -433,6 +477,7 @@ public class XML {
                                     } else {
                                         context.accumulate(tagName, jsonObject);
                                     }
+                                    System.out.printf("context now is %s\n", context.toString());
                                 }
 
                                 return false;
@@ -598,6 +643,7 @@ public class XML {
         while (x.more()) {
             x.skipPast("<");
             if(x.more()) {
+                System.out.println("<===========Call parse from toJSONObject==============>");
                 parse(x, jo, null, config, 0);
             }
         }
