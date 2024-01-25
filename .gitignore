@@ -16,3 +16,7 @@ build
 /gradlew
 /gradlew.bat
 .gitmodules
+
+*.class
+.DS_Store
+
