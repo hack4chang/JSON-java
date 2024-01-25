@@ -422,6 +422,7 @@ public class XML {
                     // Content, between <...> and </...>
                     System.out.println("<==============GT================>");
                     for (;;) {
+                        System.out.printf("<-----infinite for loop in GT, depth = %d, jsonObject = %s, context = %s----->\n",currentNestingDepth, jsonObject.toString(), context.toString());
                         token = x.nextContent();
                         System.out.printf("next token is %s\n",token);
                         if (token == null) {
@@ -443,6 +444,7 @@ public class XML {
                                     System.out.println("xmlXsiTypeConverter is null");
                                     jsonObject.accumulate(config.getcDataTagName(),
                                             config.isKeepStrings() ? string : stringToValue(string));
+                                    System.out.printf("jsonObject now is %s\n",jsonObject.toString());
                                 }
                             }
 
@@ -452,9 +454,10 @@ public class XML {
                             if (currentNestingDepth == config.getMaxNestingDepth()) {
                                 throw x.syntaxError("Maximum nesting depth of " + config.getMaxNestingDepth() + " reached");
                             }
-                            System.out.printf("Current NestingDepth = %d, call parse in parse\n", currentNestingDepth);
+                            System.out.printf("Current NestingDepth = %d, tagName = %s, jsonObject = %s, call parse in parse\n", currentNestingDepth + 1, tagName, jsonObject.toString());
                             if (parse(x, jsonObject, tagName, config, currentNestingDepth + 1)) {
                                 System.out.println("<--------recursive parse return true--------->");
+                                System.out.printf("Current NestingDepth = %d, tagName = %s, jsonObject = %s\n", currentNestingDepth, tagName, jsonObject.toString());
                                 if (config.getForceList().contains(tagName)) {
                                     // Force the value to be an array
                                     System.out.println("getForceList contains tagName");
@@ -466,20 +469,23 @@ public class XML {
                                     } else {
                                         context.append(tagName, jsonObject);
                                     }
-                                    System.out.printf("context now is %s\n", context.toString());
+                                    System.out.printf("context now is %s, name = %s\n", context.toString(), name);
                                 } else {
-                                    System.out.println("<--------recursive parse return false--------->");
+                                    System.out.println("getForceList didn't contains tagName");
                                     if (jsonObject.length() == 0) {
+                                        System.out.println("jsonObject length == 0");
                                         context.accumulate(tagName, "");
                                     } else if (jsonObject.length() == 1
                                             && jsonObject.opt(config.getcDataTagName()) != null) {
+                                        System.out.println("jsonObject length == 1");
                                         context.accumulate(tagName, jsonObject.opt(config.getcDataTagName()));
                                     } else {
+                                        System.out.println("jsonObject length > 1");
                                         context.accumulate(tagName, jsonObject);
                                     }
-                                    System.out.printf("context now is %s\n", context.toString());
+                                    System.out.printf("context now is %s, name = %s\n", context.toString(), name);
                                 }
-
+                                System.out.println("<----------recursive parse return false------------->");
                                 return false;
                             }
                         }
