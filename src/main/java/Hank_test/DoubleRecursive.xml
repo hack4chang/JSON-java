@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<catalog>
+   <book id="bk101">
+      <author name="Gambardella, Matthew">
+         <Birthday>1989/3/2</Birthday>
+         <Gender>Male</Gender>
+      </author>
+      <author name="Rall Ken">
+         <Birthday>1980/5/1</Birthday>
+         <Gender>Male</Gender>
+      </author>
+      <publish>2019/3/1</publish>
+   </book>
+   <book id="bk102">
+      <author name="Rall Ken">
+         <Birthday>1980/5/1</Birthday>
+         <Gender>Male</Gender>
+      </author>
+      <author name="Haren">
+         <Birthday>1980/2/1</Birthday>
+         <Gender>Male</Gender>
+      </author>
+      <publish>2020/5/1</publish>
+   </book>
+</catalog>

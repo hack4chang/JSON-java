@@ -1,21 +1,21 @@
 import org.json.*;
-import java.io.File;
+import java.io.FileReader;
 import java.util.*;
 import java.io.IOException;
-
+import java.util.function.Function;
 class TestClass{
     public static JSONObject convertXML(String path){
         try{
             StringBuilder str = new StringBuilder();
-            File xml = new File(path);
-            Scanner sc = new Scanner(xml);
-            while(sc.hasNextLine()){
-                str.append(sc.nextLine());
-            }
-            JSONObject json = XML.toJSONObject(str.toString());
+            JSONPointer pointer = new JSONPointer("/catalog/book/1/author/1/Gender");
+            JSONObject replace = new JSONObject();
+            replace.put("Gender","Female");
+            Function<String, String> keyTransformer = a -> "swe262_" + a; 
+            FileReader xml = new FileReader(path);
+            JSONObject json = XML.toJSONObject(xml, keyTransformer);
             return json;
-        }catch(IOException e){
-            e.getStackTrace();
+        }catch(Exception e){
+            System.err.println(e);
         }
         return null;
     }
@@ -33,6 +33,11 @@ class TestClass{
 
     public static void main(String[] args){
         JSONObject json = convertXML(args[0]);
-        Object result = queryJSON("/catalog/book/1", json);
+        if(json!=null) System.out.println(json.toString());
     }
 }
+
+// if (token == null) {
+//     token = x.nextToken();
+//     System.out.printf("token equals null, and next token is %s\n",token.toString());
+// }
