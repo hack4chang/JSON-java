@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.function.Function;
 
 class TestClass {
+    // using DoubleRecursive.xml as testing XML
     public static JSONObject convertXML(String path) {
         try {
             StringBuilder str = new StringBuilder();
@@ -40,9 +41,3 @@ class TestClass {
             System.out.println(json.toString());
     }
 }
-
-// if (token == null) {
-// token = x.nextToken();
-// System.out.printf("token equals null, and next token is
-// %s\n",token.toString());
-// }
