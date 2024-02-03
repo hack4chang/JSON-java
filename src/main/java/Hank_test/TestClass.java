@@ -1,43 +1,48 @@
+package Hank_test;
+
 import org.json.*;
 import java.io.FileReader;
 import java.util.*;
 import java.io.IOException;
 import java.util.function.Function;
-class TestClass{
-    public static JSONObject convertXML(String path){
-        try{
+
+class TestClass {
+    public static JSONObject convertXML(String path) {
+        try {
             StringBuilder str = new StringBuilder();
             JSONPointer pointer = new JSONPointer("/catalog/book/1/author/1/Gender");
             JSONObject replace = new JSONObject();
-            replace.put("Gender","Female");
-            Function<String, String> keyTransformer = a -> "swe262_" + a; 
+            replace.put("Gender", "Female");
+            Function<String, String> keyTransformer = a -> "swe262_" + a;
             FileReader xml = new FileReader(path);
             JSONObject json = XML.toJSONObject(xml, keyTransformer);
             return json;
-        }catch(Exception e){
+        } catch (Exception e) {
             System.err.println(e);
         }
         return null;
     }
 
-    public static Object queryJSON(String queryPath, JSONObject json){
-        try{
+    public static Object queryJSON(String queryPath, JSONObject json) {
+        try {
             JSONPointer pointer = new JSONPointer(queryPath);
             Object result = pointer.queryFrom(json);
             return result;
-        }catch(JSONPointerException e){
+        } catch (JSONPointerException e) {
             System.out.println(e);
         }
         return null;
-    }   
+    }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         JSONObject json = convertXML(args[0]);
-        if(json!=null) System.out.println(json.toString());
+        if (json != null)
+            System.out.println(json.toString());
     }
 }
 
 // if (token == null) {
-//     token = x.nextToken();
-//     System.out.printf("token equals null, and next token is %s\n",token.toString());
+// token = x.nextToken();
+// System.out.printf("token equals null, and next token is
+// %s\n",token.toString());
 // }
