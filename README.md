@@ -44,9 +44,9 @@ java -cp .:json-java.jar Test (Unix Systems)
 ```
 
 
-### Milestone #2
+## Milestone #2
 
-#### Spec
+### Spec
 - Add an overloaded static method to the XML class with the signature
 ```Java
 static JSONObject toJSONObject(Reader reader, JSONPointer path) 
@@ -87,6 +87,40 @@ That way I would improve the performance without reading the whole XML file.
 I did validation on the given key path along reading the file, once the given path didn't match the actual file, it would return errors.
 After I found the last key from the given path at open tag section, I skipped the reader to the end of the close tag, and accumulated the given JSON object.
 
+## Milestone #3
 
+### Spec
+- Add an overloaded static method to the XML class with the signature
+```java
+static JSONObject toJSONObject(Reader reader, YOURTYPEHERE keyTransformer) 
+```
+which does, inside the library, the kinds of things you did in task 4 of milestone 1, but in a much more general manner, for any transformations of keys. Specifically, YOURTYPEHERE should be a function (or "functional" in Java) that takes as input a String  denoting a key and returns another String that is the transformation of the key. For example:
+```
+"foo" --> "swe262_foo" 
+"foo" --> "oof"
+``` 
 
+- comment on the performance implications of doing this inside the library vs. doing it in client code, as you did in Milestone 1. 
 
+- Write unit tests for your new function.
+
+### How to run
+
+#### Method 1 - Use Maven
+Use Maven to run the Junit test from src/main/java/test
+
+#### Method 2 - Using Bash Script
+Under src/main/java/Hank_test, you can build and create the .jar file using
+```Linux
+bash jar.sh
+```
+It will create an json-java.jar under the current directory.
+To execute the testing file TestClass.java, use this command
+```Linux
+bash javaCompileExecute.sh
+```
+
+### Performance Implication
+For milestone1 task4, we first retrieve the json file by calling method that invokes ```parse``` method, then we loop over the whole json object to add prefix. <br>
+Assume the time complexity of parse is O(n), if add prefix is achieved by the client end, the overall time complexity will be O(2n).<br>
+Compare to add prefix directly inside the parse method, which would only takes in O(n), adding prefix from the client end would take additional O(n).
