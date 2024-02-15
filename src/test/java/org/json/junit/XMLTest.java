@@ -21,6 +21,7 @@ import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -96,6 +97,43 @@ public class XMLTest {
         JSONObject expected = new JSONObject(json);
         assertTrue(expected.similar(jo));
         // System.out.println(jo);
+    }
+
+    // Testing the given test case for prefixes
+    @Test
+    public void test4() throws JSONException, Exception {
+        String xmlStr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<contact>\n" +
+                " <nick>Crista </nick>\n" +
+                " <name>Crista Lopes</name>\n" +
+                " <address>\n" +
+                " <street>Ave of Nowhere</street>\n" +
+                " <zipcode>92614</zipcode>\n" +
+                " </address>\n" +
+                "</contact>";
+
+        Reader xml = new StringReader(xmlStr);
+        Function<String, String> keyTransformer = a -> "swe262_" + a;
+        JSONObject jo = new JSONObject();
+        jo = XML.toJSONObject(xml, keyTransformer);
+        String json = "{\"swe262_contact\":{\"swe262_name\":\"Crista Lopes\",\"swe262_nick\":\"Crista\",\"swe262_address\":{\"swe262_street\":\"Ave of Nowhere\",\"swe262_zipcode\":92614}}}";
+        JSONObject expected = new JSONObject(json);
+        assertTrue(expected.similar(jo));
+        // System.out.println(jo);
+    }
+
+    // Testing JSON Arrays for Prefixes
+    @Test
+    public void test5() throws JSONException, Exception {
+        String xmlStr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root> <name>John</name> <age>30</age> <cars> <car>Ford</car> <car>BMW</car> <car>Fiat</car> </cars></root>";
+        Reader xml = new StringReader(xmlStr);
+        JSONObject jo = new JSONObject();
+        Function<String, String> keyTransformer = a -> "swe262_" + a;
+        jo = XML.toJSONObject(xml, keyTransformer);
+        // System.out.println(jo);
+        String json = "{\"swe262_root\":{\"swe262_age\":30,\"swe262_name\":\"John\",\"swe262_cars\":{\"swe262_car\":[\"Ford\",\"BMW\",\"Fiat\"]}}}";
+        JSONObject expected = new JSONObject(json);
+        assertTrue(expected.similar(jo));
     }
 
     @Test(expected = NullPointerException.class)
