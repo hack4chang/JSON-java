@@ -1328,7 +1328,7 @@ public class XML {
         return toJSONObject(string, XMLParserConfiguration.ORIGINAL);
     }
 
-    /**
+    /** 
      * Convert a well-formed (but not necessarily valid) XML into a
      * JSONObject. Some information may be lost in this transformation because
      * JSON is a data format and XML is a document format. XML uses elements,

@@ -27,6 +27,11 @@ import java.util.Map.Entry;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.Spliterator;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
 
 import static org.json.NumberConversionUtil.potentialNumber;
 import static org.json.NumberConversionUtil.stringToNumber;
@@ -2844,6 +2849,11 @@ public class JSONObject {
         return results;
     }
 
+    public Stream<JSONObject> toStream() {
+        JSONObjectSpliterator spliterator = new JSONObjectSpliterator(this);
+        return StreamSupport.stream(spliterator, false);
+    }
+
     /**
      * Create a new JSONException in a common format for incorrect conversions.
      * @param key name of the key
@@ -2882,6 +2892,61 @@ public class JSONObject {
         return new JSONException(
             "JavaBean object contains recursively defined member variable of key " + quote(key)
         );
+    }
+
+    private class JSONObjectSpliterator implements Spliterator<JSONObject>{
+        private JSONObject root;
+        private Set<String> keys;
+        private JSONObject map;
+        
+        public JSONObjectSpliterator(JSONObject jsonObject){
+            this.root = this.map = jsonObject;
+        }
+
+        @Override
+        public int characteristics() {
+            return Spliterator.IMMUTABLE | Spliterator.NONNULL;
+        }
+
+        @Override
+        public long estimateSize() {
+            return Long.MAX_VALUE;
+        }
+
+        @Override
+        public Spliterator<JSONObject> trySplit() {
+            return null;
+        }
+        
+        @Override 
+        public boolean tryAdvance(java.util.function.Consumer<? super JSONObject> action){
+            JSONObject currentMap = this.map; 
+            action.accept(currentMap);
+
+            keys = currentMap.keySet();
+            for (String key : keys){
+                Object value = currentMap.get(key);
+                if (value instanceof String){
+                    JSONObject obj = new JSONObject().put(key, value);
+                    action.accept(obj);
+                }
+                else if (value instanceof JSONObject){
+                    this.map = (JSONObject)value;
+                    this.tryAdvance(action);
+                }
+                else if (value instanceof JSONArray){
+                    for (Object subObject : (JSONArray) value){
+                        this.map = (JSONObject)subObject;
+                        this.tryAdvance(action);
+                    }
+                }
+            }
+
+            this.map = currentMap;
+            if (this.map == this.root){
+                return false;
+            }else return true;
+        }
     }
 
 
