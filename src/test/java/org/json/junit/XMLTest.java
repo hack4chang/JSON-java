@@ -20,7 +20,9 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.json.*;
 import org.junit.Rule;
@@ -52,6 +54,40 @@ public class XMLTest {
         jo = XML.toJSONObject(new StringReader(xmlStr), new JSONPointer("/bookstore/book/"));
         System.out.println(jo);
     }
+
+    // Testing toStream method
+    @Test
+    public void streamTest() {
+        JSONObject obj = XML.toJSONObject(
+                "<Books><book><title>AAA</title><author>ASmith</author></book><book><title>BBB</title><author>BSmith</author></book></Books>");
+
+        JSONObject[] expected = new JSONObject[] {
+                new JSONObject(
+                        "{\"Books\":{\"book\":[{\"author\":\"ASmith\",\"title\":\"AAA\"},{\"author\":\"BSmith\",\"title\":\"BBB\"}]}}"),
+                new JSONObject(
+                        "{\"book\":[{\"author\":\"ASmith\",\"title\":\"AAA\"},{\"author\":\"BSmith\",\"title\":\"BBB\"}]}"),
+                new JSONObject("{\"author\":\"ASmith\",\"title\":\"AAA\"}"),
+                new JSONObject("{\"author\":\"BSmith\",\"title\":\"BBB\"}") };
+
+        // Get All the nodes
+        JSONObject[] actual = obj.toStream().filter(node -> node != null).toArray(JSONObject[]::new);
+
+        for (int i = 0; i < actual.length; i += 1) {
+            assertEquals(actual[i].toString(), expected[i].toString());
+        }
+    }
+
+    // @Test
+    // public void testToStream2() throws JSONException, Exception {
+    // JSONObject obj = XML.toJSONObject(
+    // "<Books><book><title>AAA</title><author>ASmith</author></book><book><title>BBB</title><author>BSmith</author></book></Books>");
+
+    // List<String> titles = obj.toStream().filter(node -> node != null).map(node ->
+    // node.optString("title"))
+    // .collect(Collectors.toList());
+
+    // System.out.println(titles);
+    // }
 
     @Test(expected = NullPointerException.class)
     public void shouldHandleNullXML() {
