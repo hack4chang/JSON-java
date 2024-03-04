@@ -1,6 +1,7 @@
 import org.json.*;
 import java.io.FileReader;
 import java.util.*;
+import java.util.stream.*;
 import java.io.IOException;
 import java.util.function.Function;
 
@@ -37,6 +38,11 @@ class TestClass {
 
     public static void main(String[] args) {
         JSONObject json = convertXML(args[0]);
-        json.toStream().forEach(System.out::println);
+        List<Set<String>> expected = new ArrayList<>(Arrays.asList(new HashSet<>(Arrays.asList("Books")), new HashSet<>(Arrays.asList("book")), new HashSet<>(Arrays.asList("author", "title"))
+        , new HashSet<>(Arrays.asList("author")), new HashSet<>(Arrays.asList("title")), new HashSet<>(Arrays.asList("author", "title")), new HashSet<>(Arrays.asList("author")), new HashSet<>(Arrays.asList("title"))));
+        List<Set<String>> result = json.toStream().map(JSONObject::keySet).collect(Collectors.toList());
+        for (Set<String> str : expected){
+            System.out.println(str);
+        }
     }
 }

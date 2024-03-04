@@ -136,6 +136,16 @@ public class XMLTest {
         assertTrue(expected.similar(jo));
     }
 
+    // Testing JSON Object toStream()
+    @Test
+    public void JSONObjectToStream() {
+        JSONObject obj = XML.toJSONObject("<Books><book><title>AAA</title><author>ASmith</author></book><book><title>BBB</title><author>BSmith</author></book></Books>");
+        List<Set<String>> expected = new ArrayList<>(Arrays.asList(new HashSet<>(Arrays.asList("Books")), new HashSet<>(Arrays.asList("book")), new HashSet<>(Arrays.asList("author", "title"))
+        , new HashSet<>(Arrays.asList("author")), new HashSet<>(Arrays.asList("title")), new HashSet<>(Arrays.asList("author", "title")), new HashSet<>(Arrays.asList("author")), new HashSet<>(Arrays.asList("title"))));
+        List<Set<String>> result = json.toStream().map(JSONObject::keySet).collect(Collectors.toList());
+        assertEquals(expected, result);
+    }
+
     @Test(expected = NullPointerException.class)
     public void shouldHandleNullXML() {
         String xmlStr = null;

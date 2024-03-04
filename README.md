@@ -124,3 +124,35 @@ bash javaCompileExecute.sh
 For milestone1 task4, we first retrieve the json file by calling method that invokes ```parse``` method, then we loop over the whole json object to add prefix. <br>
 Assume the time complexity of parse is O(n), if add prefix is achieved by the client end, the overall time complexity will be O(2n).<br>
 Compare to add prefix directly inside the parse method, which would only takes in O(n), adding prefix from the client end would take additional O(n).
+
+## Milestone #4
+
+### Spec
+- Add streaming methods to the library that allow the client code to chain operations on JSON nodes. For example:
+```java
+// in client space
+JSONObject obj = XML.toJSONObject("<Books><book><title>AAA</title><author>ASmith</author></book><book><title>BBB</title><author>BSmith</author></book></Books>");
+obj.toStream().forEach(node -> do some transformation, possibly based on the path of the node);
+List<String> titles = obj.toStream().map(node -> extract value for key "title").collect(Collectors.toList());
+obj.toStream().filter(node -> node with certain properties).forEach(node -> do some transformation);
+```
+These stream operations apply to JSONObject, and are started by transforming those objects into streams with the new toStream() method, that you should write. Given that XML and JSON are hierarchical structures, you need to think about the type of stream you want to support. E.g. top-level elements only, every element independent of nesting, etc. There can be many options. The critical thing here is that, unless the client code explicitly collects the data into an object, the data should simply flow in small parts to the next operation.
+
+- Write a junit test case
+
+### How to run
+
+#### Method 1 - Use Maven
+Use Maven to run the Junit test from src/main/java/test
+
+#### Method 2 - Using Bash Script
+Under src/main/java/Hank_test, you can build and create the .jar file using
+```Linux
+bash jar.sh
+```
+It will create an json-java.jar under the current directory.
+To execute the testing file TestClass.java, use this command
+```Linux
+bash javaCompileExecute.sh
+```
+
