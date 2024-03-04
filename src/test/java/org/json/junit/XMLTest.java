@@ -19,9 +19,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.*;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -139,10 +139,10 @@ public class XMLTest {
     // Testing JSON Object toStream()
     @Test
     public void JSONObjectToStream() {
-        JSONObject obj = XML.toJSONObject("<Books><book><title>AAA</title><author>ASmith</author></book><book><title>BBB</title><author>BSmith</author></book></Books>");
+        JSONObject jo = XML.toJSONObject("<Books><book><title>AAA</title><author>ASmith</author></book><book><title>BBB</title><author>BSmith</author></book></Books>");
         List<Set<String>> expected = new ArrayList<>(Arrays.asList(new HashSet<>(Arrays.asList("Books")), new HashSet<>(Arrays.asList("book")), new HashSet<>(Arrays.asList("author", "title"))
         , new HashSet<>(Arrays.asList("author")), new HashSet<>(Arrays.asList("title")), new HashSet<>(Arrays.asList("author", "title")), new HashSet<>(Arrays.asList("author")), new HashSet<>(Arrays.asList("title"))));
-        List<Set<String>> result = json.toStream().map(JSONObject::keySet).collect(Collectors.toList());
+        List<Set<String>> result = jo.toStream().map(JSONObject::keySet).collect(Collectors.toList());
         assertEquals(expected, result);
     }
 
