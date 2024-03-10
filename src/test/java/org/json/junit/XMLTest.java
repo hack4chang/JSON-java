@@ -18,10 +18,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Consumer;
 import java.util.stream.*;
+
+import javax.swing.tree.ExpandVetoException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -144,6 +148,28 @@ public class XMLTest {
         , new HashSet<>(Arrays.asList("author")), new HashSet<>(Arrays.asList("title")), new HashSet<>(Arrays.asList("author", "title")), new HashSet<>(Arrays.asList("author")), new HashSet<>(Arrays.asList("title"))));
         List<Set<String>> result = jo.toStream().map(JSONObject::keySet).collect(Collectors.toList());
         assertEquals(expected, result);
+    }
+
+    @Test
+    public void AsyncToJSONObject(){
+        String xmlStr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root> <name>John</name> <age>30</age> <cars> <car>Ford</car> <car>BMW</car> <car>Fiat</car> </cars></root>";
+        Reader xml = new StringReader(xmlStr);
+        StringWriter writer = new StringWriter();
+        Consumer<JSONObject> response =  (JSONObject jo) -> {jo.write(writer);};
+        Consumer<Exception> failure = (Exception e) -> {e.printStackTrace();};
+        XML.toJSONObject(xml, response, failure);
+        // if asyncronous, writer would be no content inside
+        assertEquals("", writer.toString());
+        try{
+            // wait for updating writer
+            Thread.sleep(200);
+        }catch(InterruptedException err){
+            err.printStackTrace();
+        }
+        //writer updated thus not empty
+        assertTrue(!writer.toString().equals(""));
+        JSONObject expectedObj = XML.toJSONObject(xmlStr);
+        assertEquals(expectedObj.toString(), writer.toString());
     }
 
     @Test(expected = NullPointerException.class)

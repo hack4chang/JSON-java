@@ -14,6 +14,12 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.util.function.Function;
+import java.util.function.Consumer;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 
 import static org.json.NumberConversionUtil.potentialNumber;
@@ -1450,6 +1456,35 @@ public class XML {
             }
         }
         return jo;
+    }
+
+    private static class AsyncRead implements Callable<Void> {
+        private Reader reader;
+        private Consumer<JSONObject> onResponse;
+        private Consumer<Exception> onFailure;
+
+        public AsyncRead(Reader reader, Consumer<JSONObject> onResponse, Consumer<Exception> onFailure){
+            this.reader = reader;
+            this.onResponse = onResponse;
+            this.onFailure = onFailure;
+        }
+
+        @Override
+        public Void call(){
+            JSONObject jo = XML.toJSONObject(this.reader);
+            try{
+                onResponse.accept(jo);
+            }catch(Exception err){
+                onFailure.accept(err);
+            }
+            return null;
+        }
+    }
+
+    public static void toJSONObject(Reader reader, Consumer<JSONObject> onResponse, Consumer<Exception> onFailure) throws JSONException {
+        Callable<Void> call = new AsyncRead(reader, onResponse, onFailure);
+        ExecutorService executor = Executors.newFixedThreadPool(1);
+        Future future = executor.submit(call);
     }
 
 
