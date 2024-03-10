@@ -38,10 +38,8 @@ class TestClass {
 
     public static void main(String[] args) {
         JSONObject json = convertXML(args[0]);
-        List<Set<String>> expected = new ArrayList<>(Arrays.asList(new HashSet<>(Arrays.asList("Books")), new HashSet<>(Arrays.asList("book")), new HashSet<>(Arrays.asList("author", "title"))
-        , new HashSet<>(Arrays.asList("author")), new HashSet<>(Arrays.asList("title")), new HashSet<>(Arrays.asList("author", "title")), new HashSet<>(Arrays.asList("author")), new HashSet<>(Arrays.asList("title"))));
-        List<Set<String>> result = json.toStream().map(JSONObject::keySet).collect(Collectors.toList());
-        for (Set<String> str : expected){
+        List<String> result = json.toStream().filter(jo -> jo.has("title")).map(node -> (String)node.opt("title")).collect(Collectors.toList());
+        for (String str : result){
             System.out.println(str);
         }
     }

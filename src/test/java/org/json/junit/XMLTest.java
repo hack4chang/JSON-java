@@ -144,9 +144,8 @@ public class XMLTest {
     @Test
     public void JSONObjectToStream() {
         JSONObject jo = XML.toJSONObject("<Books><book><title>AAA</title><author>ASmith</author></book><book><title>BBB</title><author>BSmith</author></book></Books>");
-        List<Set<String>> expected = new ArrayList<>(Arrays.asList(new HashSet<>(Arrays.asList("Books")), new HashSet<>(Arrays.asList("book")), new HashSet<>(Arrays.asList("author", "title"))
-        , new HashSet<>(Arrays.asList("author")), new HashSet<>(Arrays.asList("title")), new HashSet<>(Arrays.asList("author", "title")), new HashSet<>(Arrays.asList("author")), new HashSet<>(Arrays.asList("title"))));
-        List<Set<String>> result = jo.toStream().map(JSONObject::keySet).collect(Collectors.toList());
+        List<String> expected = Arrays.asList("AAA","BBB");
+        List<String> result = jo.toStream().filter(node -> node.has("title")).map(node -> (String)node.opt("title")).collect(Collectors.toList());
         assertEquals(expected, result);
     }
 

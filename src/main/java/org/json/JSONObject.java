@@ -2921,16 +2921,13 @@ public class JSONObject {
         @Override 
         public boolean tryAdvance(java.util.function.Consumer<? super JSONObject> action){
             JSONObject currentMap = this.map; 
-            action.accept(currentMap);
 
             keys = currentMap.keySet();
             for (String key : keys){
                 Object value = currentMap.get(key);
-                if (value instanceof String){
-                    JSONObject obj = new JSONObject().put(key, value);
-                    action.accept(obj);
-                }
-                else if (value instanceof JSONObject){
+                JSONObject obj = new JSONObject().put(key, value);
+                action.accept(obj);
+                if (value instanceof JSONObject){
                     this.map = (JSONObject)value;
                     this.tryAdvance(action);
                 }
