@@ -20,12 +20,15 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Consumer;
 import java.util.stream.*;
 
 import javax.swing.tree.ExpandVetoException;
+import java.util.stream.Collectors;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -143,29 +146,35 @@ public class XMLTest {
     // Testing JSON Object toStream()
     @Test
     public void JSONObjectToStream() {
-        JSONObject jo = XML.toJSONObject("<Books><book><title>AAA</title><author>ASmith</author></book><book><title>BBB</title><author>BSmith</author></book></Books>");
-        List<String> expected = Arrays.asList("AAA","BBB");
-        List<String> result = jo.toStream().filter(node -> node.has("title")).map(node -> (String)node.opt("title")).collect(Collectors.toList());
+        JSONObject jo = XML.toJSONObject(
+                "<Books><book><title>AAA</title><author>ASmith</author></book><book><title>BBB</title><author>BSmith</author></book></Books>");
+        List<String> expected = Arrays.asList("AAA", "BBB");
+        List<String> result = jo.toStream().filter(node -> node.has("title")).map(node -> (String) node.opt("title"))
+                .collect(Collectors.toList());
         assertEquals(expected, result);
     }
 
     @Test
-    public void AsyncToJSONObject(){
+    public void AsyncToJSONObject() {
         String xmlStr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root> <name>John</name> <age>30</age> <cars> <car>Ford</car> <car>BMW</car> <car>Fiat</car> </cars></root>";
         Reader xml = new StringReader(xmlStr);
         StringWriter writer = new StringWriter();
-        Consumer<JSONObject> response =  (JSONObject jo) -> {jo.write(writer);};
-        Consumer<Exception> failure = (Exception e) -> {e.printStackTrace();};
+        Consumer<JSONObject> response = (JSONObject jo) -> {
+            jo.write(writer);
+        };
+        Consumer<Exception> failure = (Exception e) -> {
+            e.printStackTrace();
+        };
         XML.toJSONObject(xml, response, failure);
         // if asyncronous, writer would be no content inside
         assertEquals("", writer.toString());
-        try{
+        try {
             // wait for updating writer
             Thread.sleep(200);
-        }catch(InterruptedException err){
+        } catch (InterruptedException err) {
             err.printStackTrace();
         }
-        //writer updated thus not empty
+        // writer updated thus not empty
         assertTrue(!writer.toString().equals(""));
         JSONObject expectedObj = XML.toJSONObject(xmlStr);
         assertEquals(expectedObj.toString(), writer.toString());
